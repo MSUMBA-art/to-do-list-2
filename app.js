@@ -40,16 +40,12 @@ const defaultItems = [item1, item2, item3];
 
 const listSchema = {
   name: String,
-  items: [itemsSchema]
+  items: [itemsSchema],
 };
 
-const List = mongoose.model("List", listSchema)
-
-
+const List = mongoose.model("List", listSchema);
 
 app.get("/", function (req, res) {
-  
-
   Item.find({}, function (err, foundItems) {
     if (foundItems.length === 0) {
       Item.insertMany(defaultItems, function (err) {
@@ -61,7 +57,7 @@ app.get("/", function (req, res) {
       });
       res.redirect("/");
     } else {
-      res.render("list", { listTitle: "TODAY", newListItems: foundItems });
+      res.render("list", { listTitle: "Today", newListItems: foundItems });
     }
   });
 });
@@ -78,28 +74,40 @@ app.get("/:customListName", function (req, res) {
           items: defaultItems,
         });
         list.save();
-        res.redirect("/" + customListName)
+        res.redirect("/" + customListName);
       } else {
-       // show an existing list
-        
-        res.render("list", { listTitle: foundList.name, newListItems: foundList.items })
+        // show an existing list
+
+        res.render("list", {
+          listTitle: foundList.name,
+          newListItems: foundList.items,
+        });
       }
     }
   });
-
-  
 });
 
 app.post("/", function (req, res) {
   const itemName = req.body.newItem;
+  const listName = req.body.list;
 
   const item = new Item({
     name: itemName,
   });
 
-  item.save();
+  if (listName === "Today") {
 
-  res.redirect("/");
+    item.save();
+
+    res.redirect("/");
+    
+  } else {
+    List.findOne({ name: listName }, function(err, foundList) {
+      foundList.items.push(item);
+      foundList.save();
+      res.redirect("/" + listName);
+    });
+  }
 });
 
 app.post("/delete", function (req, res) {
@@ -116,8 +124,6 @@ app.post("/delete", function (req, res) {
 // app.get("/work", function (req, res) {
 //   res.render("list", { listTitle: "Work List", newListItems: workItems });
 // });
-
-
 
 app.get("/about", function (req, res) {
   res.render("about");
