@@ -2,7 +2,6 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
-//const { default: mongoose } = require("mongoose");
 const mongoose = require("mongoose");
 const _ = require("lodash")
 //const date = require(__dirname + "/date.js");
@@ -13,9 +12,25 @@ app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-mongoose.connect("mongodb://localhost:27017/todolistDB", {
+
+// mongoose.connect("mongodb://localhost:27017/todolistDB", {
+//   useNewUrlParser: true,
+// });
+
+const dbUrl =
+  "mongodb+srv://ALEXANDER:Alexyahoo1983@cluster0.zh6cl.mongodb.net/todolistDB";
+const connectionParams = {
   useNewUrlParser: true,
-});
+  useUnifiedTopology: true
+}
+  
+mongoose.connect(dbUrl, connectionParams)
+  .then(() => {
+  console.log("Connected");
+  })
+  .catch((e) => {
+  console.log("Error", e);
+})
 
 const itemsSchema = {
   name: String,
