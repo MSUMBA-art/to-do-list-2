@@ -3,7 +3,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const _ = require("lodash")
+const _ = require("lodash");
 //const date = require(__dirname + "/date.js");
 
 const app = express();
@@ -13,24 +13,25 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// mongoose.connect("mongodb://localhost:27017/todolistDB", {
-//   useNewUrlParser: true,
-// });
-
-const dbUrl =
-  "mongodb+srv://ALEXANDER:Alexyahoo1983@cluster0.zh6cl.mongodb.net/todolistDB";
-const connectionParams = {
+mongoose.connect( "mongodb+srv://ALEX:Alexyahoo1983@cluster0.zh6cl.mongodb.net/todolistDB?retryWrites=true&w=majority", {
   useNewUrlParser: true,
-  useUnifiedTopology: true
-}
-  
-mongoose.connect(dbUrl, connectionParams)
-  .then(() => {
-  console.log("Connected");
-  })
-  .catch((e) => {
-  console.log("Error", e);
-})
+});
+
+// const dbUrl =
+//   "mongodb+srv://ALEX:Alexyahoo1983@cluster0.zh6cl.mongodb.net/todolistDB?retryWrites=true&w=majority";
+// const connectionParams = {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// };
+
+// mongoose
+//   .connect(dbUrl, connectionParams)
+//   .then(() => {
+//     console.log("Connected");
+//   })
+//   .catch((e) => {
+//     console.log("Error", e);
+//   });
 
 const itemsSchema = {
   name: String,
@@ -79,7 +80,7 @@ app.get("/", function (req, res) {
 });
 
 app.get("/:customListName", function (req, res) {
-  const customListName = _.capitalize (req.params.customListName);
+  const customListName = _.capitalize(req.params.customListName);
 
   List.findOne({ name: customListName }, function (err, foundList) {
     if (!err) {
@@ -112,13 +113,11 @@ app.post("/", function (req, res) {
   });
 
   if (listName === "Today") {
-
     item.save();
 
     res.redirect("/");
-    
   } else {
-    List.findOne({ name: listName }, function(err, foundList) {
+    List.findOne({ name: listName }, function (err, foundList) {
       foundList.items.push(item);
       foundList.save();
       res.redirect("/" + listName);
@@ -138,14 +137,16 @@ app.post("/delete", function (req, res) {
       }
     });
   } else {
-    List.findOneAndUpdate({ name: listName }, { $pull: { items: { _id: checkedItemId } } }, function (err, foundList) {
-      if (!err) {
-        res.redirect("/" + listName);
+    List.findOneAndUpdate(
+      { name: listName },
+      { $pull: { items: { _id: checkedItemId } } },
+      function (err, foundList) {
+        if (!err) {
+          res.redirect("/" + listName);
+        }
       }
-    });
+    );
   }
-
-  
 });
 
 // app.get("/work", function (req, res) {
